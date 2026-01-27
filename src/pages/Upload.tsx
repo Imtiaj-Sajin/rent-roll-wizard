@@ -79,24 +79,12 @@ export default function UploadPage() {
               <Button
                 type="button"
                 variant="default"
-                className="glass-strong hover:glass-stronger w-full disabled:opacity-80 disabled:bg-card/20 disabled:text-foreground/70"
+                className="w-full shadow-sm disabled:opacity-60"
                 disabled={!file || isProcessing}
                 onClick={process}
               >
                 <Wand2 className="mr-2 h-4 w-4" />
                 {isProcessing ? "Processing…" : "Process"}
-              </Button>
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="secondary"
-                className="glass hover:glass-strong w-full"
-                disabled={!canGoNext}
-                onClick={() => navigate("/extract", { state: { filenameBase } })}
-              >
-                Go to Extract
               </Button>
             </div>
 
@@ -115,15 +103,59 @@ export default function UploadPage() {
           </div>
         </Card>
 
-        <Card className="glass p-5">
-          <div className="grid place-items-center rounded-2xl border border-border/60 bg-card/20 p-10 text-center">
-            <div>
-              <p className="text-sm font-medium">Next step: Extract</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {result?.rows?.length
-                  ? `Ready: ${result.rows.length} rows extracted. Click “Go to Extract”.`
-                  : "Process a PDF to generate the extracted table."}
-              </p>
+        <Card className="glass-strong p-5">
+          <div className="rounded-2xl border border-border/60 bg-card/15 p-6">
+            <div className="flex flex-col gap-5">
+              <div>
+                <p className="text-sm font-medium">Next step: Extract</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {result?.rows?.length
+                    ? "We extracted a table from your PDF. Review it and export to Excel."
+                    : "Process a PDF to generate the extracted table."}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border/60 bg-card/10 p-4">
+                <div className="text-sm font-medium">Summary</div>
+                <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">File</dt>
+                    <dd className="mt-1 truncate">{file?.name ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Type</dt>
+                    <dd className="mt-1">{RENT_ROLL_TYPES.find((t) => t.value === type)?.label ?? type}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Pages</dt>
+                    <dd className="mt-1">{result?.meta?.pages ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Rows</dt>
+                    <dd className="mt-1">{result?.rows?.length ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Columns</dt>
+                    <dd className="mt-1">{result?.columns?.length ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Warnings</dt>
+                    <dd className="mt-1">{result?.meta?.warnings?.length ?? 0}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="glass hover:glass-strong w-full"
+                  disabled={!canGoNext}
+                  onClick={() => navigate("/extract", { state: { filenameBase } })}
+                >
+                  Go to Extract
+                </Button>
+              </div>
             </div>
           </div>
         </Card>
