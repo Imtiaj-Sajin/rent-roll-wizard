@@ -28,7 +28,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar collapsible="icon" className={collapsed ? "w-14" : "w-60"}>
+    <Sidebar collapsible="icon" className={collapsed ? "w-14" : "w-[--sidebar-width]"}>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Rent Roll</SidebarGroupLabel>
