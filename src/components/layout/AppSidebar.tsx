@@ -1,4 +1,4 @@
-import { FileText, Settings2, Users } from "lucide-react";
+import { FileText, Settings2, Wrench, Users } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import { NavLink } from "@/components/NavLink";
@@ -17,7 +17,7 @@ import {
 const items = [
   { title: "Upload", url: "/upload", icon: FileText },
   { title: "Extract", url: "/extract", icon: Settings2 },
-  { title: "Tools", url: "/tools", icon: Settings2 },
+  { title: "Tools", url: "/tools", icon: Wrench },
   { title: "Users", url: "/users", icon: Users },
 ];
 
