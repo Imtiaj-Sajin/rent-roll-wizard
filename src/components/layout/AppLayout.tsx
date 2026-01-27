@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { RentRollSessionProvider } from "@/features/rentroll/ui/rentroll-session";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ProfileButton } from "@/components/ProfileButton";
 
 export default function AppLayout() {
   return (
@@ -15,13 +16,21 @@ export default function AppLayout() {
             <AppSidebar />
 
             <SidebarInset className="bg-transparent">
-              <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/40 bg-background/40 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/30">
+              <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border/40 bg-background/40 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/30">
+                {/* Left */}
                 <div className="flex items-center gap-2">
                   <SidebarTrigger className="glass" />
                   <div className="hidden text-sm font-medium sm:block">Rent Roll</div>
                 </div>
-                <ThemeToggle />
+
+                {/* Right */}
+                <div className="ml-auto flex items-center gap-2">
+                  <ThemeToggle />
+                  <ProfileButton />
+
+                </div>
               </header>
+
 
               <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
                 <Outlet />
