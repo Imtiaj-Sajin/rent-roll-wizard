@@ -11,7 +11,7 @@ export default function UsersPage() {
       <Card className="glass p-5">
         <div className="rounded-2xl border border-border/60 bg-card/20 p-6">
           <p className="text-sm text-muted-foreground">
-            This project is intentionally frontend-only for privacy. If you ever want real users/logins, we can add it with Lovable Cloud.
+            This project is intentionally frontend-only for privacy. 
           </p>
         </div>
       </Card>
