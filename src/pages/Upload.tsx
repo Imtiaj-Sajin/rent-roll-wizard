@@ -79,7 +79,7 @@ export default function UploadPage() {
               <Button
                 type="button"
                 variant="default"
-                className="glass-strong hover:glass-stronger w-full"
+                className="glass-strong hover:glass-stronger w-full disabled:opacity-80 disabled:bg-card/20 disabled:text-foreground/70"
                 disabled={!file || isProcessing}
                 onClick={process}
               >

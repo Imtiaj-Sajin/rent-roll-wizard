@@ -154,13 +154,13 @@ All colors MUST be HSL.
   .bg-hero-pattern {
     background-image: var(--hero-pattern);
     background-size: 22px 22px;
-    mask-image: radial-gradient(closest-side at 50% 35%, black 0%, transparent 70%);
+    mask-image: radial-gradient(closest-side at 50% 40%, black 0%, transparent 82%);
   }
 
   .bg-pattern-dots {
     background-image: radial-gradient(hsl(var(--foreground) / 0.09) 1px, transparent 1px);
     background-size: 18px 18px;
-    mask-image: radial-gradient(closest-side at 30% 20%, black 0%, transparent 72%);
+    mask-image: radial-gradient(closest-side at 32% 24%, black 0%, transparent 90%);
   }
 
   .bg-pattern-grid {
@@ -168,7 +168,7 @@ All colors MUST be HSL.
       linear-gradient(to right, hsl(var(--foreground) / 0.08) 1px, transparent 1px),
       linear-gradient(to bottom, hsl(var(--foreground) / 0.08) 1px, transparent 1px);
     background-size: 48px 48px;
-    mask-image: radial-gradient(closest-side at 70% 40%, black 0%, transparent 70%);
+    mask-image: radial-gradient(closest-side at 70% 42%, black 0%, transparent 92%);
   }
 
   .bg-pattern-diagonal {
@@ -179,7 +179,7 @@ All colors MUST be HSL.
       transparent 2px,
       transparent 14px
     );
-    mask-image: radial-gradient(closest-side at 50% 85%, black 0%, transparent 70%);
+    mask-image: radial-gradient(closest-side at 50% 80%, black 0%, transparent 92%);
   }
 }
 
