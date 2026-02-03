@@ -9,6 +9,11 @@ export type ParseResult = {
     pages: number;
     extractedAt: string;
     warnings?: string[];
+    debug?: {
+      headerWords?: string[];
+      walls?: string[];
+      columnDefs?: string[];
+    };
   };
   raw?: {
     pagesText: string[];

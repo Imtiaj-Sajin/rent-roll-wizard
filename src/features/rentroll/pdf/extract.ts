@@ -7,7 +7,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 export type PdfTextItem = {
   str: string;
-  x: number;
+  x: number;   // x0 (start position)
+  x1: number;  // end position (x + width)
   y: number;
   w: number;
 };
@@ -15,6 +16,7 @@ export type PdfTextItem = {
 export type PdfPageText = {
   pageNumber: number;
   items: PdfTextItem[];
+  width: number;  // page width for column boundary calculations
 };
 
 export async function extractPdfPagesText(file: File): Promise<PdfPageText[]> {
@@ -26,6 +28,7 @@ export async function extractPdfPagesText(file: File): Promise<PdfPageText[]> {
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
     const page = await pdf.getPage(pageNumber);
     const textContent = await page.getTextContent();
+    const viewport = page.getViewport({ scale: 1 });
 
     const items: PdfTextItem[] = (textContent.items as any[])
       .map((it) => {
@@ -37,11 +40,12 @@ export async function extractPdfPagesText(file: File): Promise<PdfPageText[]> {
         const x = t?.[4] ?? 0;
         const y = t?.[5] ?? 0;
         const w = (it.width as number | undefined) ?? 0;
-        return { str, x, y, w } satisfies PdfTextItem;
+        const x1 = x + w;  // end position
+        return { str, x, x1, y, w } satisfies PdfTextItem;
       })
       .filter(Boolean) as PdfTextItem[];
 
-    pages.push({ pageNumber, items });
+    pages.push({ pageNumber, items, width: viewport.width });
   }
 
   return pages;
