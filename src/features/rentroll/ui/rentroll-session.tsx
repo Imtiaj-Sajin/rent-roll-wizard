@@ -19,7 +19,7 @@ const RentRollSessionContext = createContext<RentRollSessionState | null>(null);
 
 export function RentRollSessionProvider({ children }: { children: React.ReactNode }) {
   const [file, setFile] = useState<File | null>(null);
-  const [type, setType] = useState<RentRollType>("multifamily");
+  const [type, setType] = useState<RentRollType>("commercial_retail");
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<ParseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
