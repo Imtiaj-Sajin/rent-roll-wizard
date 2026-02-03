@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { RentRollType } from "@/features/rentroll/types";
 import { useRentRollSession } from "@/features/rentroll/ui/rentroll-session";
 
-const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string }[] = [
-  { value: "multifamily", label: "Multi-family", hint: "Table with Unit / Tenant / Rent columns" },
-  { value: "commercial_mall", label: "Commercial (Mall)", hint: "PREIT Property Specific Rent Roll" },
-  { value: "commercial_retail", label: "Commercial (Retail)", hint: "Suite / Occupant with future rent increases" },
+const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; available: boolean }[] = [
+  { value: "commercial_retail", label: "Commercial (Retail)", hint: "Suite / Occupant with future rent increases", available: true },
+  { value: "multifamily", label: "Multi-family", hint: "Coming soon", available: false },
+  { value: "commercial_mall", label: "Commercial (Mall)", hint: "Coming soon", available: false },
 ];
 
 export default function UploadPage() {
@@ -65,8 +65,8 @@ export default function UploadPage() {
                   </SelectTrigger>
                   <SelectContent className="z-50 bg-popover/95 backdrop-blur">
                     {RENT_ROLL_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
+                      <SelectItem key={t.value} value={t.value} disabled={!t.available}>
+                        {t.label} {!t.available && <span className="text-muted-foreground">(Coming soon)</span>}
                       </SelectItem>
                     ))}
                   </SelectContent>

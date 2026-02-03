@@ -3,7 +3,7 @@ import { FileSpreadsheet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { exportRentRollToXlsx } from "@/features/rentroll/exportExcel";
 import { useRentRollSession } from "@/features/rentroll/ui/rentroll-session";
 import { RentRollTable } from "@/features/rentroll/ui/rentroll-table";
@@ -24,12 +24,9 @@ export default function ExtractPage() {
       </header>
 
       <Card className="glass p-5">
-        <Tabs defaultValue="preview" className="w-full">
+        <div className="w-full">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="glass">
-              <TabsTrigger value="preview">Preview</TabsTrigger>
-              <TabsTrigger value="raw">Raw Text</TabsTrigger>
-            </TabsList>
+            <div className="text-sm font-medium text-muted-foreground">Preview</div>
 
             <div className="flex gap-2">
               <Button
@@ -53,7 +50,7 @@ export default function ExtractPage() {
             </div>
           </div>
 
-          <TabsContent value="preview" className="mt-5">
+          <div className="mt-5">
             {!result ? (
               <div className="grid place-items-center rounded-2xl border border-border/60 bg-card/20 p-10 text-center">
                 <div>
@@ -82,16 +79,8 @@ export default function ExtractPage() {
                 <RentRollTable result={result} />
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="raw" className="mt-5">
-            <div className="rounded-2xl border border-border/60 bg-card/20 p-4">
-              <pre className="max-h-[520px] overflow-auto whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
-                {(result?.raw?.pagesText ?? []).join("\n\n--- PAGE ---\n\n")}
-              </pre>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </Card>
     </div>
   );

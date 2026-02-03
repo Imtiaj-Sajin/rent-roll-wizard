@@ -10,12 +10,9 @@ export type ParseResult = {
     extractedAt: string;
     warnings?: string[];
     debug?: {
-      headerWords?: string[];
+      header_words?: string[];
       walls?: string[];
-      columnDefs?: string[];
+      column_defs?: string[];
     };
-  };
-  raw?: {
-    pagesText: string[];
   };
 };
