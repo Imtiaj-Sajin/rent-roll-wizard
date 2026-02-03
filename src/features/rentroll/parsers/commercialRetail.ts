@@ -1,29 +1,15 @@
 import type { ParseResult } from "../types";
 import type { PdfPageText } from "../pdf/extract";
-import { extractAnchoredTable } from "../pdf/table";
+import { extractWallBasedTable } from "../pdf/wallBasedTable";
 
 export function parseCommercialRetail(pages: PdfPageText[], pagesText: string[]): ParseResult {
-  const { columns, rows, warnings } = extractAnchoredTable(pages, {
-    columns: [
-      { key: "Bldg Id", headerMatchers: [/^Bldg Id$/i] },
-      { key: "Suit Id", headerMatchers: [/^Suit Id$/i, /^Suit$/i] },
-      { key: "Occupant Name", headerMatchers: [/^Occupant Name$/i] },
-      { key: "Rent Start", headerMatchers: [/^Rent Start$/i] },
-      { key: "Expiration", headerMatchers: [/^Expiration$/i] },
-      { key: "GLA Sqft", headerMatchers: [/^GLA$/i, /^GLA\s*Sqft$/i] },
-      { key: "Monthly Base Rent", headerMatchers: [/Monthly\s*Base\s*Rent/i] },
-      { key: "Annual Rate PSF", headerMatchers: [/Annual\s*Rate\s*PSF/i] },
-      { key: "Monthly Cost Recovery", headerMatchers: [/Monthly\s*Cost\s*Recovery/i] },
-      { key: "Monthly Expense Stop", headerMatchers: [/Expense\s*Stop/i] },
-      { key: "Monthly Other Income", headerMatchers: [/Other\s*Income/i] },
-      { key: "Future Cat", headerMatchers: [/Future\s*Rent\s*Increases/i, /^Cat$/i] },
-      { key: "Future Date", headerMatchers: [/^Date$/i] },
-      { key: "Future Monthly Amount", headerMatchers: [/Monthly\s*Amount/i] },
-      { key: "Future PSF", headerMatchers: [/^PSF$/i] },
-    ],
-    startAfterHeaderMatchers: [/Rent Roll/i],
-    stopIfLineIncludes: [/Database:/i, /^Page\s*:\s*\d+/i],
+  // Use wall-based extraction algorithm (matches Python pdfplumber approach)
+  const { columns, rows, warnings, debug } = extractWallBasedTable(pages, {
+    headerAnchor: /Occupant/i,           // Find header row by this anchor
+    headerPage: 3,                        // Page 3 has good structure (1-indexed)
+    skipPatterns: [/^page/i, /database/i], // Filter out footer/metadata lines
     minFilledColumns: 3,
+    yTolerance: 3,
   });
 
   return {
@@ -34,8 +20,14 @@ export function parseCommercialRetail(pages: PdfPageText[], pagesText: string[])
       extractedAt: new Date().toISOString(),
       warnings: [
         ...warnings,
-        "Commercial Retail files often contain multi-line 'Future Rent Increases'. Those may require a second pass to normalize into separate rows.",
+        "Commercial Retail uses wall-based column extraction for accurate data separation.",
       ],
+      // Include debug info for verification
+      debug: debug ? {
+        headerWords: debug.headerWords.map((h) => `${h.text} [${h.x.toFixed(1)}-${h.x1.toFixed(1)}]`),
+        walls: debug.walls.map((w) => w.toFixed(1)),
+        columnDefs: debug.columnDefs.map((c) => `${c.name}: ${c.xStart.toFixed(1)}-${c.xEnd.toFixed(1)}`),
+      } : undefined,
     },
     raw: { pagesText },
   };
