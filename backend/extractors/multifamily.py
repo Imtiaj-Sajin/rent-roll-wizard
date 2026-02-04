@@ -1,22 +1,26 @@
-# backend\extractors\multifamily.py
 import pdfplumber
-import pandas as pd
 from typing import Dict, List, Any
-
 
 def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
     """
     Multifamily rent roll extraction using grid-based detection.
     Uses PDF edges/lines to detect cell boundaries.
+    Includes logic to merge 'spillover' rows (rows broken across pages).
     """
     
     pdf = pdfplumber.open(pdf_path)
     
+    # Capture page count early to ensure we have it for metadata
+    total_pages = len(pdf.pages)
+    
     # ==========================================
     # PHASE 1: Define Master Columns (From Page 0)
     # ==========================================
+    # We use Page 0 as the "Template" to define where columns start/end.
     p0 = pdf.pages[0]
     v_lines = [e for e in p0.edges if e['orientation'] == 'v']
+    
+    # Filter for vertical lines in the header area (Top ~91-120 based on analysis)
     header_v_lines = [line for line in v_lines if 90 <= line['top'] <= 95]
     
     x_coords = sorted([line['x0'] for line in header_v_lines])
@@ -24,6 +28,7 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
     if x_coords:
         unique_x.append(x_coords[0])
         for x in x_coords[1:]:
+            # Filter close duplicates (borders usually have 2 lines close to each other)
             if x - unique_x[-1] > 5:
                 unique_x.append(x)
 
@@ -35,7 +40,11 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
     for i, page in enumerate(pdf.pages):
         # Detect Rows for THIS specific page
         h_lines = [e for e in page.edges if e['orientation'] == 'h']
+        
+        # Filter for long row separators (Width > 600)
         row_lines = [line for line in h_lines if line['width'] > 600]
+        
+        # Get Y-coordinates
         y_coords = sorted([line['top'] for line in row_lines])
         
         unique_y = []
@@ -45,28 +54,43 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
                 if y - unique_y[-1] > 5:
                     unique_y.append(y)
 
+        # If no valid rows found (e.g., blank page), skip
         if len(unique_y) < 2:
             continue
 
         # Extract Grid
+        # Loop through row intervals
         for r in range(len(unique_y) - 1):
             row_data = []
+            
+            # Loop through the Master Column intervals
             for c in range(len(unique_x) - 1):
+                # Define box: (x0, top, x1, bottom)
                 cell_box = (unique_x[c], unique_y[r], unique_x[c+1], unique_y[r+1])
                 try:
-                    text = page.crop(cell_box).extract_text()
-                    clean_text = text.replace('\n', ' ').strip() if text else ""
-                except:
+                    # Crop and Extract
+                    cell_crop = page.crop(cell_box)
+                    text = cell_crop.extract_text()
+                    
+                    if text:
+                        # Fix multi-line issues (e.g. date broken into two lines)
+                        clean_text = text.replace('\n', ' ').strip()
+                    else:
+                        clean_text = ""
+                except Exception:
                     clean_text = ""
+                
                 row_data.append(clean_text)
             
             all_pages_data.append(row_data)
 
+    # Close PDF resource
     pdf.close()
 
     # ==========================================
     # PHASE 3: Clean and Merge Rows
     # ==========================================
+    # This fixes the "Franklin Aquino" issue where data spills to next page
     final_data = clean_and_merge_rows(all_pages_data)
     
     if not final_data:
@@ -74,7 +98,7 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
             "columns": [],
             "rows": [],
             "meta": {
-                "pages": len(pdf.pages) if pdf else 0,
+                "pages": total_pages,
                 "total_rows": 0
             }
         }
@@ -83,19 +107,21 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
     column_names = final_data[0]
     data_rows = final_data[1:]
     
-    # Convert to list of dicts for JSON
+    # Convert to list of dicts for JSON response
     rows_as_dicts = []
     for row in data_rows:
         row_dict = {}
         for i, col_name in enumerate(column_names):
-            row_dict[col_name] = row[i] if i < len(row) else ""
+            # Safety check: ensure row has enough columns
+            value = row[i] if i < len(row) else ""
+            row_dict[col_name] = value
         rows_as_dicts.append(row_dict)
     
     return {
         "columns": column_names,
         "rows": rows_as_dicts,
         "meta": {
-            "pages": len(pdf.pages) if hasattr(pdf, 'pages') else 0,
+            "pages": total_pages,
             "total_rows": len(rows_as_dicts)
         }
     }
@@ -119,6 +145,8 @@ def clean_and_merge_rows(raw_data: List[List[str]]) -> List[List[str]]:
     cleaned_rows = [row for row in data_rows if row[0] != "Unit"]
 
     merged_data = []
+    
+    # Handle case where only header exists
     if not cleaned_rows:
         return [header]
 
@@ -137,9 +165,13 @@ def clean_and_merge_rows(raw_data: List[List[str]]) -> List[List[str]]:
             # === MERGE LOGIC ===
             # Combine next_row into current_primary_row
             new_merged_row = []
+            
+            # Use zip to safely iterate both rows, or range based on primary
+            # Since we enforce grid, lengths should match, but we use range to be safe
             for k in range(len(current_primary_row)):
                 val_main = current_primary_row[k]
-                val_spill = next_row[k]
+                # Safety check if next_row is shorter (unlikely with grid, but good practice)
+                val_spill = next_row[k] if k < len(next_row) else ""
                 
                 # Join with space if both exist, otherwise take whichever exists
                 if val_main and val_spill:
