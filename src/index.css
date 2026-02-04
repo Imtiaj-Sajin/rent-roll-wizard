@@ -41,7 +41,7 @@ All colors MUST be HSL.
 
     /* Extra design tokens */
     --glass: 0 0% 100% / 0.55;
-    --glass-strong: 0 0% 100% / 0.7;
+    --glass-strong: 0 0% 100% / 0.28;
     --glass-border: 222 18% 86% / 0.7;
     --shadow-elev: 0 22px 70px -40px hsla(278, 100%, 50%, 0.63);
     --hero-glow: radial-gradient(1200px 800px at 15% 0%, hsla(263, 100%, 50%, 0.18), transparent 55%),
@@ -97,7 +97,7 @@ All colors MUST be HSL.
     --ring: 242 83% 62%;
 
     --glass: 235 28% 10% / 0.55;
-    --glass-strong: 235 28% 10% / 0.72;
+    --glass-strong: 235 28% 10% / 0.35;
     --glass-border: 210 20% 88% / 0.12;
     --shadow-elev: 0 30px 90px -55px hsla(337, 100%, 51%, 0.719);
     --hero-glow: radial-gradient(1200px 800px at 15% 0%, hsla(332, 100%, 62%, 0.315), transparent 55%),
@@ -133,12 +133,18 @@ All colors MUST be HSL.
     backdrop-filter: blur(14px);
   }
 
-  .glass-strong {
-    background: hsl(var(--glass-strong));
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow: var(--shadow-elev);
-    backdrop-filter: blur(16px);
-  }
+.glass-strong {
+  background:
+    linear-gradient(
+      135deg,
+      hsl(var(--glass-strong)) 0%,
+      hsl(var(--glass-strong) / 0.75) 40%,
+      hsl(var(--glass-strong) / 0.55) 50%
+    );
+  border: 1px solid hsl(var(--glass-border));
+  box-shadow: var(--shadow-elev);
+  backdrop-filter: blur(18px) saturate(140%);
+}
 
   .glass-stronger {
     background: hsl(var(--glass-strong));
