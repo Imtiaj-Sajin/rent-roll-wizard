@@ -22,3 +22,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Python__pycache__/
+*.pyc
+backend/__pycache__/
+backend/venv/
+backend/extractors/__pycache__/
+backend/extractors/*.pyc
+
+
+
+# dot env
+.env
+.env.local
