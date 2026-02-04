@@ -49,10 +49,10 @@ export function ProfileButton() {
         className="
           w-56
           rounded-xl
-          border border-border/40
-          bg-background/70
-          backdrop-blur-md
-          shadow-xl
+          border border-border
+          bg-background/40
+          backdrop-blur-xl
+          shadow-xs
         "
       >
         {/* User info */}
