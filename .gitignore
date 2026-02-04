@@ -31,7 +31,7 @@ backend/venv/
 backend/extractors/__pycache__/
 backend/extractors/*.pyc
 
-
+backend/*.pyc
 
 # dot env
 .env
