@@ -10,7 +10,7 @@ import { useRentRollSession } from "@/features/rentroll/ui/rentroll-session";
 
 const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; available: boolean }[] = [
   { value: "commercial_retail", label: "Commercial (Retail)", hint: "Suite / Occupant with future rent increases", available: true },
-  { value: "multifamily", label: "Multi-family", hint: "Coming soon", available: false },
+  { value: "multifamily", label: "Multi-family", hint: "Grid-based extraction with row merging", available: true },
   { value: "commercial_mall", label: "Commercial (Mall)", hint: "Coming soon", available: false },
 ];
 
