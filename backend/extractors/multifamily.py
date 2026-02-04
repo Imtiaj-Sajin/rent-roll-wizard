@@ -1,4 +1,5 @@
 import pdfplumber
+import re  # Added for smart date cleaning
 from typing import Dict, List, Any
 
 def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
@@ -73,8 +74,14 @@ def extract_rent_roll(pdf_path: str) -> Dict[str, Any]:
                     text = cell_crop.extract_text()
                     
                     if text:
-                        # Fix multi-line issues (e.g. date broken into two lines)
+                        # === SMART CLEANING START ===
+                        # 1. If newline is preceded by '/' or '-', remove the newline entirely (fix dates)
+                        # Regex: Lookbehind for / or -, match optional whitespace, then newline
+                        text = re.sub(r'(?<=[/-])\s*\n', '', text)
+                        
+                        # 2. For all other text, replace newline with space (fix names)
                         clean_text = text.replace('\n', ' ').strip()
+                        # === SMART CLEANING END ===
                     else:
                         clean_text = ""
                 except Exception:
@@ -166,16 +173,19 @@ def clean_and_merge_rows(raw_data: List[List[str]]) -> List[List[str]]:
             # Combine next_row into current_primary_row
             new_merged_row = []
             
-            # Use zip to safely iterate both rows, or range based on primary
-            # Since we enforce grid, lengths should match, but we use range to be safe
             for k in range(len(current_primary_row)):
                 val_main = current_primary_row[k]
-                # Safety check if next_row is shorter (unlikely with grid, but good practice)
                 val_spill = next_row[k] if k < len(next_row) else ""
                 
-                # Join with space if both exist, otherwise take whichever exists
+                # If both parts exist, decide how to join them
                 if val_main and val_spill:
-                    new_merged_row.append(f"{val_main} {val_spill}")
+                    # SMART JOIN:
+                    # If the first part ends with '/' or '-', join directly (for dates 04/30/ + 2018)
+                    if val_main.strip().endswith('/') or val_main.strip().endswith('-'):
+                        new_merged_row.append(f"{val_main}{val_spill}")
+                    else:
+                        # Otherwise, add a space (for names Franklin + Aquino)
+                        new_merged_row.append(f"{val_main} {val_spill}")
                 else:
                     new_merged_row.append(val_main + val_spill)
             
