@@ -4,6 +4,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from extractors.commercial_retail import extract_rent_roll as extract_commercial_retail
+from extractors.multifamily import extract_rent_roll as extract_multifamily
 
 app = FastAPI(title="Rent Roll Extractor API")
 
@@ -43,11 +44,11 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
     if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall"]:
         raise HTTPException(status_code=400, detail=f"Unknown rent roll type: {rent_roll_type}")
     
-    # For now, only commercial_retail is implemented
-    if rent_roll_type != "commercial_retail":
+    # commercial_mall is not implemented yet
+    if rent_roll_type == "commercial_mall":
         raise HTTPException(
             status_code=501, 
-            detail=f"Extraction for '{rent_roll_type}' is coming soon. Only 'commercial_retail' is currently supported."
+            detail=f"Extraction for 'commercial_mall' is coming soon."
         )
     
     # Save uploaded file to temp location
@@ -59,8 +60,11 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
             temp_file.write(content)
             temp_path = temp_file.name
         
-        # Extract data
-        result = extract_commercial_retail(temp_path)
+        # Extract data based on type
+        if rent_roll_type == "commercial_retail":
+            result = extract_commercial_retail(temp_path)
+        elif rent_roll_type == "multifamily":
+            result = extract_multifamily(temp_path)
         
         return result
     
