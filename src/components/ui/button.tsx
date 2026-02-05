@@ -12,7 +12,14 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground ring-1 ring-transparent hover:ring-4 hover:ring-destructive/50 ",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-input",
+p2: "bg-secondary text-primary-foreground relative overflow-hidden \
+after:absolute after:inset-[-4px] after:rounded-xl \
+after:border after:border-secondary/60 \
+after:opacity-0 hover:after:opacity-100 \
+after:transition-opacity after:duration-300 \
+hover:shadow-[0_0_24px_hsl(var(--secondary)/0.35)]",
+
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },

@@ -148,8 +148,8 @@ export default function UploadPage() {
               <div className="flex gap-3">
                 <Button
                   type="button"
-                  variant="secondary"
-                  className="glass hover:glass-strong w-full"
+                  variant="default"
+                  className=" w-full"
                   disabled={!canGoNext}
                   onClick={() => navigate("/extract", { state: { filenameBase } })}
                 >
