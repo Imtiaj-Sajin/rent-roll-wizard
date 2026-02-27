@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from extractors.commercial_retail import extract_rent_roll as extract_commercial_retail
 from extractors.multifamily import extract_rent_roll as extract_multifamily
+from extractors.guardian_storage import extract_rent_roll as extract_guardian_storage
 
 app = FastAPI(title="Rent Roll Extractor API")
 
