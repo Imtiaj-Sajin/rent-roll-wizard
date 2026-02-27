@@ -1,5 +1,5 @@
 // src\pages\Upload.tsx
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Upload as UploadIcon, Wand2 } from "lucide-react";
 
@@ -41,9 +41,14 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
 export default function UploadPage() {
   const navigate = useNavigate();
   const { file, type, setFile, setType, isProcessing, process, result, error } = useRentRollSession();
+  
+  // State to track which item is being hovered for the large preview
+  const [hoveredType, setHoveredType] = useState<string | null>(null);
 
   const filenameBase = useMemo(() => (file?.name ? file.name.replace(/\.pdf$/i, "") : "rent-roll"), [file]);
   const canGoNext = Boolean(result?.rows?.length);
+
+  const hoveredData = useMemo(() => RENT_ROLL_TYPES.find((t) => t.value === hoveredType), [hoveredType]);
 
   return (
     <div className="mx-auto w-full max-w-6xl">
@@ -61,7 +66,6 @@ export default function UploadPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-        {/* Left Card: Relative & higher Z-index so the hover popovers aren't clipped by the right card */}
         <Card className="glass relative z-20 p-5">
           <div className="space-y-4">
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
@@ -84,7 +88,8 @@ export default function UploadPage() {
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
               <label className="text-sm font-medium">PDF type</label>
               
-              <div className="mt-3 grid grid-cols-2 gap-3">
+              {/* Changed to grid-cols-3 for tighter packing and future scaling */}
+              <div className="mt-3 grid grid-cols-3 gap-2">
                 {RENT_ROLL_TYPES.map((t) => {
                   const isSelected = type === t.value;
 
@@ -92,6 +97,8 @@ export default function UploadPage() {
                     <div
                       key={t.value}
                       onClick={() => t.available && setType(t.value)}
+                      onMouseEnter={() => setHoveredType(t.value)}
+                      onMouseLeave={() => setHoveredType(null)}
                       className={`group relative rounded-xl border p-2 transition-all ${
                         t.available
                           ? "cursor-pointer"
@@ -104,7 +111,7 @@ export default function UploadPage() {
                     >
                       {/* Thumbnail Image */}
                       {t.image ? (
-                        <div className="relative h-24 w-full overflow-hidden rounded-md border border-border/50 bg-muted/50">
+                        <div className="relative h-16 w-full overflow-hidden rounded-md border border-border/50 bg-muted/50 sm:h-20">
                           <img
                             src={t.image}
                             alt={t.label}
@@ -112,37 +119,20 @@ export default function UploadPage() {
                           />
                         </div>
                       ) : (
-                        <div className="flex h-24 w-full items-center justify-center rounded-md border border-border/50 bg-muted/50 text-xs text-muted-foreground">
-                          No Preview
+                        <div className="flex h-16 w-full items-center justify-center rounded-md border border-border/50 bg-muted/50 text-xs text-muted-foreground sm:h-20">
+                          None
                         </div>
                       )}
                       
                       {/* Label */}
-                      <div className="mt-2 text-center text-xs font-medium leading-tight">
+                      <div className="mt-2 text-center text-[11px] font-medium leading-tight">
                         {t.label}
                         {!t.available && (
-                          <div className="mt-0.5 text-[10px] text-muted-foreground">
-                            (Coming soon)
+                          <div className="mt-0.5 text-[9px] text-muted-foreground">
+                            (Soon)
                           </div>
                         )}
                       </div>
-
-                      {/* Hover Popover (Larger preview) - Hidden on mobile, pops to the right side on desktop */}
-                      {t.available && t.image && (
-                        <div className="pointer-events-none absolute left-[105%] top-1/2 z-[100] hidden w-[300px] -translate-y-1/2 rounded-xl border border-border/60 bg-card p-2 shadow-2xl sm:group-hover:block sm:w-[400px]">
-                          <img
-                            src={t.image}
-                            alt={t.label}
-                            className="h-auto w-full rounded-lg border border-border/50 shadow-sm"
-                          />
-                          <div className="mt-3 px-1 text-sm font-semibold text-card-foreground">
-                            {t.label}
-                          </div>
-                          <div className="px-1 pb-1 text-xs text-muted-foreground">
-                            {t.hint}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -182,7 +172,7 @@ export default function UploadPage() {
           </div>
         </Card>
 
-        {/* Right Card: Ensure a lower Z-index so the popover isn't buried */}
+        {/* Right Card */}
         <Card className="glass-strong relative z-10 p-5">
           <div className="rounded-2xl border border-border/60 bg-card/15 p-6">
             <div className="flex flex-col gap-5">
@@ -240,6 +230,27 @@ export default function UploadPage() {
           </div>
         </Card>
       </div>
+
+      {/* Massive Hover Preview Portal */}
+      {hoveredData?.image && hoveredData.available && (
+        <div className="pointer-events-none fixed right-8 top-1/2 z-[100] hidden h-[85vh] w-[600px] max-w-[calc(100vw-480px)] -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200 lg:flex xl:w-[750px]">
+          <div className="relative h-full w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20">
+            <img
+              src={hoveredData.image}
+              alt={hoveredData.label}
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-border/50 bg-background/95 px-6 py-2 text-center shadow-xl backdrop-blur">
+            <div className="text-sm font-semibold text-foreground">
+              {hoveredData.label}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {hoveredData.hint}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
