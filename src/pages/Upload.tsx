@@ -1,18 +1,41 @@
+// src\pages\Upload.tsx
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Upload as UploadIcon, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { RentRollType } from "@/features/rentroll/types";
 import { useRentRollSession } from "@/features/rentroll/ui/rentroll-session";
 
-const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; available: boolean }[] = [
-  { value: "commercial_retail", label: "Commercial (Retail)", hint: "Suite / Occupant with future rent increases", available: true },
-  { value: "multifamily", label: "Multi-family", hint: "Grid-based extraction with row merging", available: true },
-  { value: "guardian_storage", label: "Guardian Storage (Seven Fields)", hint: "Dynamic column detection with nearest-column assignment", available: true },
-  { value: "commercial_mall", label: "Commercial (Mall)", hint: "Coming soon", available: false },
+const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; available: boolean; image?: string }[] = [
+  { 
+    value: "commercial_retail", 
+    label: "Commercial (Retail)", 
+    hint: "Suite / Occupant with future rent increases", 
+    available: true,
+    image: "/templates/commercial%20retail.png"
+  },
+  { 
+    value: "multifamily", 
+    label: "Multi-family", 
+    hint: "Grid-based extraction with row merging", 
+    available: true,
+    image: "/templates/multifamily.png"
+  },
+  { 
+    value: "guardian_storage", 
+    label: "Guardian Storage (Seven Fields)", 
+    hint: "Dynamic column detection with nearest-column assignment", 
+    available: true,
+    image: "/templates/GS%20Seven%20Fields.jpg"
+  },
+  { 
+    value: "commercial_mall", 
+    label: "Commercial (Mall)", 
+    hint: "Coming soon", 
+    available: false 
+  },
 ];
 
 export default function UploadPage() {
@@ -38,7 +61,8 @@ export default function UploadPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-        <Card className="glass p-5">
+        {/* Left Card: Relative & higher Z-index so the hover popovers aren't clipped by the right card */}
+        <Card className="glass relative z-20 p-5">
           <div className="space-y-4">
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
               <label className="text-sm font-medium">PDF file</label>
@@ -59,21 +83,75 @@ export default function UploadPage() {
 
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
               <label className="text-sm font-medium">PDF type</label>
-              <div className="mt-2">
-                <Select value={type} onValueChange={(v) => setType(v as RentRollType)}>
-                  <SelectTrigger className="glass">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-popover/95 backdrop-blur">
-                    {RENT_ROLL_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value} disabled={!t.available}>
-                        {t.label} {!t.available && <span className="text-muted-foreground">(Coming soon)</span>}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="mt-2 text-xs text-muted-foreground">{RENT_ROLL_TYPES.find((t) => t.value === type)?.hint}</p>
+              
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {RENT_ROLL_TYPES.map((t) => {
+                  const isSelected = type === t.value;
+
+                  return (
+                    <div
+                      key={t.value}
+                      onClick={() => t.available && setType(t.value)}
+                      className={`group relative rounded-xl border p-2 transition-all ${
+                        t.available
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed opacity-60 grayscale"
+                      } ${
+                        isSelected
+                          ? "border-primary bg-primary/10 ring-1 ring-primary"
+                          : "border-border/60 bg-card/30 hover:border-primary/50 hover:bg-card/50"
+                      }`}
+                    >
+                      {/* Thumbnail Image */}
+                      {t.image ? (
+                        <div className="relative h-24 w-full overflow-hidden rounded-md border border-border/50 bg-muted/50">
+                          <img
+                            src={t.image}
+                            alt={t.label}
+                            className="h-full w-full object-cover object-top"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-24 w-full items-center justify-center rounded-md border border-border/50 bg-muted/50 text-xs text-muted-foreground">
+                          No Preview
+                        </div>
+                      )}
+                      
+                      {/* Label */}
+                      <div className="mt-2 text-center text-xs font-medium leading-tight">
+                        {t.label}
+                        {!t.available && (
+                          <div className="mt-0.5 text-[10px] text-muted-foreground">
+                            (Coming soon)
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Hover Popover (Larger preview) - Hidden on mobile, pops to the right side on desktop */}
+                      {t.available && t.image && (
+                        <div className="pointer-events-none absolute left-[105%] top-1/2 z-[100] hidden w-[300px] -translate-y-1/2 rounded-xl border border-border/60 bg-card p-2 shadow-2xl sm:group-hover:block sm:w-[400px]">
+                          <img
+                            src={t.image}
+                            alt={t.label}
+                            className="h-auto w-full rounded-lg border border-border/50 shadow-sm"
+                          />
+                          <div className="mt-3 px-1 text-sm font-semibold text-card-foreground">
+                            {t.label}
+                          </div>
+                          <div className="px-1 pb-1 text-xs text-muted-foreground">
+                            {t.hint}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
+              <p className="mt-4 text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">Hint:</span>{" "}
+                {RENT_ROLL_TYPES.find((t) => t.value === type)?.hint}
+              </p>
             </div>
 
             <div className="relative z-10 flex gap-3">
@@ -104,7 +182,8 @@ export default function UploadPage() {
           </div>
         </Card>
 
-        <Card className="glass-strong p-5">
+        {/* Right Card: Ensure a lower Z-index so the popover isn't buried */}
+        <Card className="glass-strong relative z-10 p-5">
           <div className="rounded-2xl border border-border/60 bg-card/15 p-6">
             <div className="flex flex-col gap-5">
               <div>
