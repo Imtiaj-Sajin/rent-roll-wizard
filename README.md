@@ -67,3 +67,12 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: 
+
+
+
+====================
+tamplates till added:
+temp1:
+temp2:
+3: Guardian Storage (Seven Fields):
+<img width="1122" height="822" alt="image" src="https://github.com/user-attachments/assets/61f03587-6013-4be1-b4da-b7bddf8cac3b" />
