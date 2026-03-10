@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from extractors.commercial_retail import extract_rent_roll as extract_commercial_retail
 from extractors.multifamily import extract_rent_roll as extract_multifamily
 from extractors.guardian_storage import extract_rent_roll as extract_guardian_storage
+from extractors.ga_portfolio import extract_rent_roll as extract_ga_portfolio
 
 app = FastAPI(title="Rent Roll Extractor API")
 
@@ -43,7 +44,7 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
     
     # Check rent roll type
-    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage"]:
+    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage", "ga_portfolio"]:
         raise HTTPException(status_code=400, detail=f"Unknown rent roll type: {rent_roll_type}")
     
     # commercial_mall is not implemented yet
@@ -69,6 +70,8 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
             result = extract_multifamily(temp_path)
         elif rent_roll_type == "guardian_storage":
             result = extract_guardian_storage(temp_path)
+        elif rent_roll_type == "ga_portfolio":
+            result = extract_ga_portfolio(temp_path)
         
         return result
     
