@@ -70,6 +70,8 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
             result = extract_multifamily(temp_path)
         elif rent_roll_type == "guardian_storage":
             result = extract_guardian_storage(temp_path)
+        elif rent_roll_type == "ga_portfolio":
+            result = extract_ga_portfolio(temp_path)
         
         return result
     
