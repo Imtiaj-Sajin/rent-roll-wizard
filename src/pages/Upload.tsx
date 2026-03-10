@@ -31,6 +31,13 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
     image: "/templates/GS%20Seven%20Fields.jpg"
   },
   { 
+    value: "ga_portfolio", 
+    label: "GA Portfolio", 
+    hint: "asdf", 
+    available: true,
+    image: "/templates/GA portfolio.png"
+  },
+  { 
     value: "commercial_mall", 
     label: "Commercial (Mall)", 
     hint: "Coming soon", 
