@@ -38,6 +38,13 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
     image: "/templates/GA portfolio.png"
   },
   { 
+    value: "shopping_mall", 
+    label: "Shopping Mall", 
+    hint: "Dynamic header detection with rectangle-based column boundaries", 
+    available: true,
+    image: "/templates/shopping%20mall.png"
+  },
+  { 
     value: "commercial_mall", 
     label: "Commercial (Mall)", 
     hint: "Coming soon", 
