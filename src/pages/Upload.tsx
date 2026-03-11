@@ -118,7 +118,7 @@ export default function UploadPage() {
                 className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2   border-dashed p-8 transition-all duration-300 ease-out ${
                   isDragging
                     ? "scale-[1.02] border-primary bg-primary/10 shadow-[0_0_30px_rgba(var(--primary),0.15)]"
-                    : "border-border  bg-purple-100/10 hover:border-primary/50 hover:bg-purple-100/30 hover:shadow-lg hover:shadow-primary/5"
+                    : "border-border  bg-red-300/10 hover:border-primary/50 hover:bg-red-300/30 hover:shadow-lg hover:shadow-primary/5"
                 }`}
               >
  
