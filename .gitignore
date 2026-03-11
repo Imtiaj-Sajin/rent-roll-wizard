@@ -26,6 +26,7 @@ dist-ssr
 
 # Python__pycache__/
 *.pyc
+__pycache__
 backend/__pycache__/
 backend/venv/
 backend/extractors/__pycache__/
@@ -36,3 +37,4 @@ backend/*.pyc
 # dot env
 .env
 .env.local
+
