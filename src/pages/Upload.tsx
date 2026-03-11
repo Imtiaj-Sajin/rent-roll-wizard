@@ -56,13 +56,37 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const { file, type, setFile, setType, isProcessing, process, result, error } = useRentRollSession();
   
-  // State to track which item is being hovered for the large preview
+  // State to track hover and drag-and-drop
   const [hoveredType, setHoveredType] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const filenameBase = useMemo(() => (file?.name ? file.name.replace(/\.pdf$/i, "") : "rent-roll"), [file]);
   const canGoNext = Boolean(result?.rows?.length);
 
   const hoveredData = useMemo(() => RENT_ROLL_TYPES.find((t) => t.value === hoveredType), [hoveredType]);
+
+  // Drag and Drop Handlers
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile && droppedFile.type === "application/pdf") {
+      setFile(droppedFile);
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-6xl">
@@ -79,30 +103,56 @@ export default function UploadPage() {
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+      {/* Added `items-start` below to prevent the right div from stretching to match the left div */}
+      <div className="grid items-start gap-6 lg:grid-cols-[420px_1fr]">
         <Card className="glass relative z-20 p-5">
           <div className="space-y-4">
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
               <label className="text-sm font-medium">PDF file</label>
-              <div className="mt-2 flex items-center gap-3">
+              
+              {/* Drag and Drop Zone */}
+              <label
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`mt-2 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-all ${
+                  isDragging
+                    ? "border-primary bg-primary/10"
+                    : "border-border/60 bg-card/50 hover:bg-card/80"
+                }`}
+              >
                 <input
                   type="file"
                   accept="application/pdf"
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-2 file:text-secondary-foreground hover:file:bg-secondary/80"
+                  className="hidden"
                 />
-              </div>
-              {file ? (
-                <p className="mt-2 text-xs text-muted-foreground">Selected: {file.name}</p>
-              ) : (
-                <p className="mt-2 text-xs text-muted-foreground">Choose a rent roll PDF to begin.</p>
-              )}
+                <UploadIcon 
+                  className={`mb-3 h-8 w-8 transition-colors ${
+                    isDragging ? "text-primary" : "text-muted-foreground"
+                  }`} 
+                />
+                {file ? (
+                  <div className="text-center">
+                    <p className="max-w-[280px] truncate text-sm font-medium text-foreground">
+                      {file.name}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">Click or drag to replace</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-foreground">
+                      Click to browse <span className="font-normal text-muted-foreground">or drag and drop</span>
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">PDF files only</p>
+                  </div>
+                )}
+              </label>
             </div>
 
             <div className="rounded-xl border border-border/60 bg-card/30 p-4">
               <label className="text-sm font-medium">PDF type</label>
               
-              {/* Changed to grid-cols-3 for tighter packing and future scaling */}
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {RENT_ROLL_TYPES.map((t) => {
                   const isSelected = type === t.value;
