@@ -1,7 +1,7 @@
 // src\pages\Upload.tsx
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Upload as UploadIcon, Wand2 } from "lucide-react";
+import { ShieldCheck, Upload as UploadIcon, Wand2, FileText, CheckCircle2, FileUp, Sparkles, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -56,7 +56,6 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const { file, type, setFile, setType, isProcessing, process, result, error } = useRentRollSession();
   
-  // State to track hover and drag-and-drop
   const [hoveredType, setHoveredType] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -65,7 +64,6 @@ export default function UploadPage() {
 
   const hoveredData = useMemo(() => RENT_ROLL_TYPES.find((t) => t.value === hoveredType), [hoveredType]);
 
-  // Drag and Drop Handlers
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -89,71 +87,85 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto w-full max-w-6xl animate-in fade-in duration-700">
+      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between slide-in-from-bottom-4 animate-in duration-700">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-            <ShieldCheck className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary shadow-[0_0_15px_rgba(var(--primary),0.1)] backdrop-blur transition-all hover:bg-primary/15">
+            <ShieldCheck className="h-4 w-4" />
             Runs 100% in your browser (no uploads)
           </div>
-          <h1 className="mt-3 text-balance text-4xl font-semibold tracking-tight">Upload</h1>
+          <h1 className="mt-4 text-balance text-4xl font-bold tracking-tight text-foreground">Extract Rent Roll Data</h1>
           <p className="mt-2 max-w-2xl text-pretty text-muted-foreground">
-            Select a PDF, choose its layout type, then click Process.
+            Select a PDF layout, drag your file below, and let our engine map it to Excel perfectly.
           </p>
         </div>
       </header>
 
-      {/* Added `items-start` below to prevent the right div from stretching to match the left div */}
-      <div className="grid items-start gap-6 lg:grid-cols-[420px_1fr]">
-        <Card className="glass relative z-20 p-5">
-          <div className="space-y-4">
-            <div className="rounded-xl border border-border/60 bg-card/30 p-4">
-              <label className="text-sm font-medium">PDF file</label>
+      <div className="grid items-start gap-6 lg:grid-cols-[440px_1fr]">
+        
+        {/* Left Card: Upload & Configuration */}
+        <Card className="glass relative z-20 p-6 shadow-xl slide-in-from-bottom-8 animate-in duration-700 delay-150">
+          <div className="space-y-6">
+            
+            {/* File Upload Zone */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold tracking-tight text-foreground">PDF Document</label>
               
-              {/* Drag and Drop Zone */}
               <label
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`mt-2 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-all ${
+                className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2   border-dashed p-8 transition-all duration-300 ease-out ${
                   isDragging
-                    ? "border-primary bg-primary/10"
-                    : "border-border/60 bg-card/50 hover:bg-card/80"
+                    ? "scale-[1.02] border-primary bg-primary/10 shadow-[0_0_30px_rgba(var(--primary),0.15)]"
+                    : "border-border  bg-purple-100/10 hover:border-primary/50 hover:bg-purple-100/30 hover:shadow-lg hover:shadow-primary/5"
                 }`}
               >
+ 
                 <input
                   type="file"
                   accept="application/pdf"
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   className="hidden"
                 />
-                <UploadIcon 
-                  className={`mb-3 h-8 w-8 transition-colors ${
-                    isDragging ? "text-primary" : "text-muted-foreground"
-                  }`} 
-                />
+                
                 {file ? (
-                  <div className="text-center">
-                    <p className="max-w-[280px] truncate text-sm font-medium text-foreground">
+                  <div className="flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+                    <div className="mb-3 rounded-full bg-primary/10 p-3 text-primary ring-1 ring-primary/20">
+                      <FileText className="h-8 w-8" />
+                    </div>
+                    <p className="max-w-[280px] truncate text-sm font-semibold text-foreground">
                       {file.name}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">Click or drag to replace</p>
+                    <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Ready to process
+                    </div>
+                    <p className="mt-3 text-[11px] text-muted-foreground transition-colors group-hover:text-foreground">
+                      Click or drag a new file to replace
+                    </p>
                   </div>
                 ) : (
-                  <div className="text-center">
+                  <div className="flex flex-col items-center text-center">
+                    <div className={`mb-4 rounded-full bg-muted/50 p-4 transition-transform duration-300 ease-out ${isDragging ? "-translate-y-2 scale-110 bg-primary/20 text-primary" : "group-hover:-translate-y-1 group-hover:bg-primary/10 group-hover:text-primary"}`}>
+                      <FileUp className="h-8 w-8" />
+                    </div>
                     <p className="text-sm font-medium text-foreground">
-                      Click to browse <span className="font-normal text-muted-foreground">or drag and drop</span>
+                      Click to browse <span className="font-normal text-muted-foreground">or drag PDF here</span>
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">PDF files only</p>
+                    <p className="mt-2 text-xs text-muted-foreground">Supports searchable PDF files</p>
                   </div>
                 )}
               </label>
             </div>
 
-            <div className="rounded-xl border border-border/60 bg-card/30 p-4">
-              <label className="text-sm font-medium">PDF type</label>
+            {/* Layout Type Selection */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold tracking-tight text-foreground">Layout Template</label>
+              </div>
               
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-2 grid grid-cols-3 gap-3">
                 {RENT_ROLL_TYPES.map((t) => {
                   const isSelected = type === t.value;
 
@@ -163,36 +175,37 @@ export default function UploadPage() {
                       onClick={() => t.available && setType(t.value)}
                       onMouseEnter={() => setHoveredType(t.value)}
                       onMouseLeave={() => setHoveredType(null)}
-                      className={`group relative rounded-xl border p-2 transition-all ${
+                      className={`group relative flex flex-col items-center rounded-xl border p-2.5 transition-all duration-300 ease-out ${
                         t.available
-                          ? "cursor-pointer"
-                          : "cursor-not-allowed opacity-60 grayscale"
+                          ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5"
+                          : "cursor-not-allowed opacity-50 grayscale"
                       } ${
                         isSelected
-                          ? "border-primary bg-primary/10 ring-1 ring-primary"
-                          : "border-border/60 bg-card/30 hover:border-primary/50 hover:bg-card/50"
+                          ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                          : "border-border/50 bg-card/20 hover:border-primary/40 hover:bg-card/40"
                       }`}
                     >
-                      {/* Thumbnail Image */}
+                      {/* Image Thumbnail with Overflow Hidden for Zoom effect */}
                       {t.image ? (
-                        <div className="relative h-16 w-full overflow-hidden rounded-md border border-border/50 bg-muted/50 sm:h-20">
+                        <div className="relative h-16 w-full overflow-hidden rounded-lg border border-border/40 bg-muted/30 sm:h-20">
                           <img
                             src={t.image}
                             alt={t.label}
-                            className="h-full w-full object-cover object-top"
+                            className={`h-full w-full object-cover object-top transition-transform duration-500 ease-out ${t.available ? "group-hover:scale-110" : ""}`}
                           />
+                          {/* Selected Overlay Glow */}
+                          {isSelected && <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />}
                         </div>
                       ) : (
-                        <div className="flex h-16 w-full items-center justify-center rounded-md border border-border/50 bg-muted/50 text-xs text-muted-foreground sm:h-20">
+                        <div className="flex h-16 w-full items-center justify-center rounded-lg border border-border/40 bg-muted/30 text-xs text-muted-foreground sm:h-20">
                           None
                         </div>
                       )}
                       
-                      {/* Label */}
-                      <div className="mt-2 text-center text-[11px] font-medium leading-tight">
+                      <div className="mt-2.5 text-center text-[11px] font-medium leading-tight text-foreground/90">
                         {t.label}
                         {!t.available && (
-                          <div className="mt-0.5 text-[9px] text-muted-foreground">
+                          <div className="mt-0.5 text-[9px] text-muted-foreground/80">
                             (Soon)
                           </div>
                         )}
@@ -202,114 +215,145 @@ export default function UploadPage() {
                 })}
               </div>
 
-              <p className="mt-4 text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">Hint:</span>{" "}
-                {RENT_ROLL_TYPES.find((t) => t.value === type)?.hint}
-              </p>
+              {/* Dynamic Hint Display */}
+              <div className="mt-3 flex items-start gap-2 rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">
+                <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <p>
+                  <span className="font-semibold text-foreground/80">Pro tip:</span>{" "}
+                  {RENT_ROLL_TYPES.find((t) => t.value === type)?.hint}
+                </p>
+              </div>
             </div>
 
-            <div className="relative z-10 flex gap-3">
+            {/* Action Button */}
+            <div className="pt-2">
               <Button
                 type="button"
-                variant="default"
-                className="w-full shadow-sm disabled:opacity-60"
+                size="lg"
+                className="group relative w-full overflow-hidden text-sm font-semibold transition-all hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] disabled:opacity-60"
                 disabled={!file || isProcessing}
                 onClick={process}
               >
-                <Wand2 className="mr-2 h-4 w-4" />
-                {isProcessing ? "Processing…" : "Process"}
+                {/* Subtle shine effect on button */}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                
+                {isProcessing ? (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing Document...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                    Process Rent Roll
+                  </>
+                )}
               </Button>
             </div>
 
-            <div className="rounded-xl border border-border/60 bg-card/20 p-4">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <UploadIcon className="h-4 w-4" />
-                Notes
+            {error && (
+              <div className="animate-in slide-in-from-top-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive shadow-sm">
+                {error}
               </div>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-                <li>Best results when the PDF contains selectable text (not scanned images).</li>
-                <li>After processing, open Extract to review and export.</li>
-              </ul>
-            </div>
-
-            {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm">{error}</div> : null}
+            )}
           </div>
         </Card>
 
-        {/* Right Card */}
-        <Card className="glass-strong relative z-10 p-5">
-          <div className="rounded-2xl border border-border/60 bg-card/15 p-6">
-            <div className="flex flex-col gap-5">
+        {/* Right Card: Summary & Next Steps */}
+        <Card className="glass-strong relative z-10 p-6 shadow-xl slide-in-from-bottom-12 animate-in duration-700 delay-300">
+          <div className="flex h-full flex-col justify-between gap-6">
+            
+            <div className="space-y-6">
               <div>
-                <p className="text-sm font-medium">Next step: Extract</p>
+                <h3 className="text-lg font-semibold tracking-tight">Extraction Summary</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {result?.rows?.length
-                    ? "We extracted a table from your PDF. Review it and export to Excel."
-                    : "Process a PDF to generate the extracted table."}
+                    ? "Table extracted successfully. Review the stats below and proceed to export."
+                    : "Awaiting document processing. Your results will appear here."}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border/60 bg-card/10 p-4">
-                <div className="text-sm font-medium">Summary</div>
-                <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-                  <div>
-                    <dt className="text-xs text-muted-foreground">File</dt>
-                    <dd className="mt-1 truncate">{file?.name ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Type</dt>
-                    <dd className="mt-1">{RENT_ROLL_TYPES.find((t) => t.value === type)?.label ?? type}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Pages</dt>
-                    <dd className="mt-1">{result?.meta?.pages ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Rows</dt>
-                    <dd className="mt-1">{result?.rows?.length ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Columns</dt>
-                    <dd className="mt-1">{result?.columns?.length ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Warnings</dt>
-                    <dd className="mt-1">{result?.meta?.warnings?.length ?? 0}</dd>
-                  </div>
-                </dl>
-              </div>
+              {/* Premium Stats Grid */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Filename</span>
+                  <span className="truncate text-sm font-semibold text-foreground">{file?.name ?? "—"}</span>
+                </div>
+                
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Layout Detected</span>
+                  <span className="text-sm font-semibold text-foreground">{RENT_ROLL_TYPES.find((t) => t.value === type)?.label ?? type}</span>
+                </div>
 
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="default"
-                  className=" w-full"
-                  disabled={!canGoNext}
-                  onClick={() => navigate("/extract", { state: { filenameBase } })}
-                >
-                  Go to Extract
-                </Button>
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Pages</span>
+                  <span className="text-sm font-semibold text-foreground">{result?.meta?.pages ?? "—"}</span>
+                </div>
+
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Rows Extracted</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {result?.rows?.length ? (
+                      <span className="text-primary">{result.rows.length} rows</span>
+                    ) : (
+                      "—"
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Columns</span>
+                  <span className="text-sm font-semibold text-foreground">{result?.columns?.length ?? "—"}</span>
+                </div>
+
+                <div className="flex flex-col justify-center space-y-1 rounded-xl border border-border/50 bg-background/40 p-3.5 shadow-sm transition-colors hover:bg-background/80">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Warnings</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {result?.meta?.warnings?.length ? (
+                      <span className="text-amber-500">{result.meta.warnings.length} warnings</span>
+                    ) : (
+                      "0"
+                    )}
+                  </span>
+                </div>
+
               </div>
             </div>
+
+            <div className="pt-4">
+              <Button
+                type="button"
+                size="lg"
+                variant={canGoNext ? "default" : "secondary"}
+                className={`group w-full text-sm font-semibold transition-all ${canGoNext ? "shadow-md hover:shadow-xl" : ""}`}
+                disabled={!canGoNext}
+                onClick={() => navigate("/extract", { state: { filenameBase } })}
+              >
+                Continue to Review
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            </div>
+            
           </div>
         </Card>
       </div>
 
       {/* Massive Hover Preview Portal */}
       {hoveredData?.image && hoveredData.available && (
-        <div className="pointer-events-none fixed right-8 top-1/2 z-[100] hidden h-[85vh] w-[600px] max-w-[calc(100vw-480px)] -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200 lg:flex xl:w-[750px]">
-          <div className="relative h-full w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20">
+        <div className="pointer-events-none fixed right-8 top-1/2 z-[100] hidden h-[85vh] w-[600px] max-w-[calc(100vw-480px)] -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-200 lg:flex xl:w-[750px]">
+          <div className="relative h-full w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20 shadow-inner">
             <img
               src={hoveredData.image}
               alt={hoveredData.label}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-contain drop-shadow-lg"
             />
           </div>
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-border/50 bg-background/95 px-6 py-2 text-center shadow-xl backdrop-blur">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-border/50 bg-background/95 px-6 py-2.5 text-center shadow-2xl backdrop-blur">
             <div className="text-sm font-semibold text-foreground">
               {hoveredData.label}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="mt-0.5 text-[11px] font-medium text-muted-foreground">
               {hoveredData.hint}
             </div>
           </div>
