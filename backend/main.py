@@ -45,7 +45,7 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
     
     # Check rent roll type
-    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage", "ga_portfolio"]:
+    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage", "ga_portfolio", "shopping_mall"]:
         raise HTTPException(status_code=400, detail=f"Unknown rent roll type: {rent_roll_type}")
     
     # commercial_mall is not implemented yet
