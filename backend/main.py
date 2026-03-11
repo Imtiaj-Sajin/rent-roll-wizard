@@ -8,6 +8,7 @@ from extractors.commercial_retail import extract_rent_roll as extract_commercial
 from extractors.multifamily import extract_rent_roll as extract_multifamily
 from extractors.guardian_storage import extract_rent_roll as extract_guardian_storage
 from extractors.ga_portfolio import extract_rent_roll as extract_ga_portfolio
+from extractors.shopping_mall import extract_rent_roll as extract_shopping_mall
 
 app = FastAPI(title="Rent Roll Extractor API")
 
