@@ -45,6 +45,13 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
     image: "/templates/shopping%20mall.png"
   },
   { 
+    value: "silvercup_studios", 
+    label: "Silvercup Studios", 
+    hint: "Fence-based column detection with automatic % column splitting", 
+    available: true,
+    image: "/templates/Silvercup_Studios.png"
+  },
+  { 
     value: "commercial_mall", 
     label: "Commercial (Mall)", 
     hint: "Coming soon", 
