@@ -1,5 +1,5 @@
 // src\pages\Upload.tsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Upload as UploadIcon, Wand2, FileText, CheckCircle2, FileUp, Sparkles, ArrowRight } from "lucide-react";
 
@@ -80,11 +80,24 @@ export default function UploadPage() {
   
   const [hoveredType, setHoveredType] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isHoveringFile, setIsHoveringFile] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
 
   const filenameBase = useMemo(() => (file?.name ? file.name.replace(/\.pdf$/i, "") : "rent-roll"), [file]);
   const canGoNext = Boolean(result?.rows?.length);
 
   const hoveredData = useMemo(() => RENT_ROLL_TYPES.find((t) => t.value === hoveredType), [hoveredType]);
+
+  // Generate an Object URL for the uploaded PDF for live preview
+  useEffect(() => {
+    if (file && file.type === "application/pdf") {
+      const url = URL.createObjectURL(file);
+      setPdfPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPdfPreviewUrl(null);
+    }
+  }, [file]);
 
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
@@ -137,10 +150,12 @@ export default function UploadPage() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2   border-dashed p-8 transition-all duration-300 ease-out ${
+                onMouseEnter={() => file && setIsHoveringFile(true)}
+                onMouseLeave={() => setIsHoveringFile(false)}
+                className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 transition-all duration-300 ease-out ${
                   isDragging
                     ? "scale-[1.02] border-primary bg-primary/10 shadow-[0_0_30px_rgba(var(--primary),0.15)]"
-                    : "border-border  bg-red-300/10 hover:border-primary/50 hover:bg-red-300/30 hover:shadow-lg hover:shadow-primary/5"
+                    : "border-border bg-red-300/10 hover:border-primary/50 hover:bg-red-300/30 hover:shadow-lg hover:shadow-primary/5"
                 }`}
               >
  
@@ -361,8 +376,8 @@ export default function UploadPage() {
         </Card>
       </div>
 
-      {/* Massive Hover Preview Portal */}
-      {hoveredData?.image && hoveredData.available && (
+      {/* Massive Hover Preview Portal for TEMPLATES */}
+      {hoveredData?.image && hoveredData.available && !isHoveringFile && (
         <div className="pointer-events-none fixed right-8 top-1/2 z-[100] hidden h-[85vh] w-[600px] max-w-[calc(100vw-480px)] -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-200 lg:flex xl:w-[750px]">
           <div className="relative h-full w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20 shadow-inner">
             <img
@@ -377,6 +392,29 @@ export default function UploadPage() {
             </div>
             <div className="mt-0.5 text-[11px] font-medium text-muted-foreground">
               {hoveredData.hint}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Massive Hover Preview Portal for UPLOADED PDF */}
+      {isHoveringFile && pdfPreviewUrl && file && (
+        <div className="pointer-events-none fixed right-8 top-1/2 z-[100] hidden h-[85vh] w-[600px] max-w-[calc(100vw-480px)] -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-200 lg:flex xl:w-[750px]">
+          <div className="relative h-full w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20 shadow-inner">
+            <iframe
+              src={`${pdfPreviewUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0`}
+              className="h-full w-full rounded-lg"
+              title="PDF Preview"
+            />
+            {/* Invisible overlay over the iframe so it doesn't "steal" the mouse pointer causing flicker */}
+            <div className="absolute inset-0 z-10 block bg-transparent" />
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-border/50 bg-background/95 px-6 py-2.5 text-center shadow-2xl backdrop-blur">
+            <div className="max-w-[300px] truncate text-sm font-semibold text-foreground">
+              {file.name}
+            </div>
+            <div className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+              Uploaded Document Preview
             </div>
           </div>
         </div>
