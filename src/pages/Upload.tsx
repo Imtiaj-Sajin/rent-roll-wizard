@@ -56,6 +56,7 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
     label: "American Storage",
     hint: "Blue/white block parsing with step rents and cross-page continuation",
     available: true,
+  },
   { 
     value: "commercial_mall", 
     label: "Commercial (Mall)", 
