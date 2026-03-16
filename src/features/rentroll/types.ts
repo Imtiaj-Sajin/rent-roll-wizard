@@ -1,4 +1,4 @@
-export type RentRollType = "multifamily" | "commercial_mall" | "commercial_retail" | "guardian_storage" | "ga_portfolio" | "shopping_mall" | "silvercup_studios";
+export type RentRollType = "multifamily" | "commercial_mall" | "commercial_retail" | "guardian_storage" | "ga_portfolio" | "shopping_mall" | "silvercup_studios" | "american_storage";
 
 export type DataRow = Record<string, string | number | null | undefined>;
 
