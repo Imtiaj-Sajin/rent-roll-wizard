@@ -11,6 +11,7 @@ from extractors.ga_portfolio import extract_rent_roll as extract_ga_portfolio
 from extractors.shopping_mall import extract_rent_roll as extract_shopping_mall
 from extractors.silvercup_studios import extract_rent_roll as extract_silvercup_studios
 from extractors.american_storage import extract_rent_roll as extract_american_storage
+from extractors.preit_service_mall import extract_rent_roll as extract_preit_service_mall
 
 app = FastAPI(title="Rent Roll Extractor API")
 
@@ -47,7 +48,7 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
     
     # Check rent roll type
-    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage", "ga_portfolio", "shopping_mall", "silvercup_studios", "american_storage"]:
+    if rent_roll_type not in ["commercial_retail", "multifamily", "commercial_mall", "guardian_storage", "ga_portfolio", "shopping_mall", "silvercup_studios", "american_storage", "preit_service_mall"]:
         raise HTTPException(status_code=400, detail=f"Unknown rent roll type: {rent_roll_type}")
     
     # commercial_mall is not implemented yet
@@ -81,6 +82,8 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
             result = extract_silvercup_studios(temp_path)
         elif rent_roll_type == "american_storage":
             result = extract_american_storage(temp_path)
+        elif rent_roll_type == "preit_service_mall":
+            result = extract_preit_service_mall(temp_path)
         
         return result
     
