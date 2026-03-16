@@ -79,6 +79,8 @@ async def extract_rent_roll(rent_roll_type: str, file: UploadFile = File(...)):
             result = extract_shopping_mall(temp_path)
         elif rent_roll_type == "silvercup_studios":
             result = extract_silvercup_studios(temp_path)
+        elif rent_roll_type == "american_storage":
+            result = extract_american_storage(temp_path)
         
         return result
     
