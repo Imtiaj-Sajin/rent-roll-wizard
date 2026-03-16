@@ -64,7 +64,7 @@ const RENT_ROLL_TYPES: { value: RentRollType; label: string; hint: string; avail
     label: "PREIT Service (Mall)",
     hint: "Green/white rows",
     available: true,
-    image: "/templates/office%20building.png"
+    image: "/templates/priet_services.png"
   },
   { 
     value: "commercial_mall", 
