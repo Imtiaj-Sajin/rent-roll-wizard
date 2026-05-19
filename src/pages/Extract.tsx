@@ -5,13 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import { exportRentRollToXlsx } from "@/features/rentroll/exportExcel";
+import { logDownload } from "@/features/rentroll/parse";
 import { useRentRollSession } from "@/features/rentroll/ui/rentroll-session";
 import { RentRollTable } from "@/features/rentroll/ui/rentroll-table";
 
 export default function ExtractPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { result, file } = useRentRollSession();
+  const { result, file, type, getUsageId } = useRentRollSession();
+
+  const handleExport = async () => {
+    if (!result) return;
+    exportRentRollToXlsx(result, filenameBase);
+    const usageId = await getUsageId();
+    void logDownload({
+      usage_id: usageId,
+      filename: file?.name,
+      rent_roll_type: type,
+    });
+  };
 
   const filenameBase =
     (location.state as any)?.filenameBase ?? (file?.name ? file.name.replace(/\.pdf$/i, "") : "rent-roll");
@@ -42,7 +54,7 @@ export default function ExtractPage() {
                 variant="secondary"
                 className="glass hover:glass-strong"
                 disabled={!result || !result.rows.length}
-                onClick={() => result && exportRentRollToXlsx(result, filenameBase)}
+                onClick={handleExport}
               >
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
                 Export Excel

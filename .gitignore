@@ -17,6 +17,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
@@ -37,4 +38,9 @@ backend/*.pyc
 # dot env
 .env
 .env.local
-
+.env.example
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example

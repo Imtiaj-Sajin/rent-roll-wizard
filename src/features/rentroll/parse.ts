@@ -1,12 +1,18 @@
 import type { ParseResult, RentRollType } from "./types";
+import { authHeader } from "@/contexts/AuthContext";
 
-// Backend API URL - update this to your VPS URL in production
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
-export async function parseRentRoll(file: File, type: RentRollType): Promise<ParseResult> {
+export interface ParseOutcome {
+  result: ParseResult;
+  usageIdPromise: Promise<number | null>;
+}
+
+export async function parseRentRoll(file: File, type: RentRollType): Promise<ParseOutcome> {
   const formData = new FormData();
   formData.append("file", file);
 
+  const t0 = performance.now();
   const response = await fetch(`${API_BASE_URL}/extract/${type}`, {
     method: "POST",
     body: formData,
@@ -18,15 +24,73 @@ export async function parseRentRoll(file: File, type: RentRollType): Promise<Par
   }
 
   const data = await response.json();
+  const processingMs = Math.round(performance.now() - t0);
 
-  return {
+  const result: ParseResult = {
     columns: data.columns,
     rows: data.rows,
     meta: {
       pages: data.meta?.pages ?? 0,
       extractedAt: new Date().toISOString(),
-      warnings: [],
+      warnings: data.meta?.warnings ?? [],
       debug: data.meta?.debug,
     },
   };
+
+  const usageIdPromise = logUsage({
+    filename: file.name,
+    rent_roll_type: type,
+    pages: result.meta?.pages ?? 0,
+    rows_extracted: result.rows.length,
+    columns_count: result.columns.length,
+    tenants: result.rows.length,
+    warnings_count: result.meta?.warnings?.length ?? 0,
+    file_size_bytes: file.size,
+    processing_ms: processingMs,
+  });
+
+  return { result, usageIdPromise };
+}
+
+interface UsagePayload {
+  filename: string;
+  rent_roll_type: string;
+  pages: number;
+  rows_extracted: number;
+  columns_count: number;
+  tenants: number;
+  warnings_count: number;
+  file_size_bytes: number;
+  processing_ms: number;
+}
+
+async function logUsage(payload: UsagePayload): Promise<number | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/usage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeader() },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function logDownload(usage: { usage_id?: number | null; filename?: string; rent_roll_type?: string }) {
+  try {
+    await fetch(`${API_BASE_URL}/usage/download`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeader() },
+      body: JSON.stringify({
+        usage_id: usage.usage_id ?? null,
+        filename: usage.filename ?? null,
+        rent_roll_type: usage.rent_roll_type ?? null,
+      }),
+    });
+  } catch {
+    /* swallow — never block a download */
+  }
 }

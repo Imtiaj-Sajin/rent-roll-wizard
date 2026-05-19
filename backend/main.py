@@ -1,6 +1,10 @@
 # backend\main.py
 import os
 import tempfile
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,12 +17,24 @@ from extractors.silvercup_studios import extract_rent_roll as extract_silvercup_
 from extractors.american_storage import extract_rent_roll as extract_american_storage
 from extractors.preit_service_mall import extract_rent_roll as extract_preit_service_mall
 
-app = FastAPI(title="Rent Roll Extractor API")
+from usage import router as usage_router
 
-# CORS - allow frontend to call this API
+app = FastAPI(title="Rent Roll Extractor API")
+app.include_router(usage_router)
+
+# CORS - allow frontend to call this API.
+# allow_origins=["*"] + allow_credentials=True is invalid per the CORS spec and
+# browsers will silently strip the header. List the real origins explicitly.
+_extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this to your frontend URL
+    allow_origins=[
+        "https://rentroll.bulkscraper.cloud",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        *_extra_origins,
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
