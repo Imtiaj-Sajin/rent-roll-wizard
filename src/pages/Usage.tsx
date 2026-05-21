@@ -25,8 +25,19 @@ interface UsageRow {
   warnings_count: number;
   file_size_bytes: number;
   processing_ms: number;
+  uploaded_at: string | null;
+  finished_at: string | null;
   used_at: string;
 }
+
+const fmtDuration = (ms: number): string => {
+  if (!ms || ms < 0) return "—";
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rs = s % 60;
+  return rs ? `${m}m ${rs}s` : `${m}m`;
+};
 
 type TimeRange = "today" | "week" | "all";
 type SortKey = "files" | "rows" | "tenants" | "downloads" | "lastActive";
@@ -160,7 +171,9 @@ const UserCard = ({
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-muted text-muted-foreground">
                 <tr>
-                  <th className="text-left px-4 py-2 font-medium uppercase tracking-wide text-[10px]">Time</th>
+                  <th className="text-left px-4 py-2 font-medium uppercase tracking-wide text-[10px]">Uploaded</th>
+                  <th className="text-left px-3 py-2 font-medium uppercase tracking-wide text-[10px]">Finished</th>
+                  <th className="text-right px-3 py-2 font-medium uppercase tracking-wide text-[10px]">Taken</th>
                   <th className="text-left px-3 py-2 font-medium uppercase tracking-wide text-[10px]">Filename</th>
                   <th className="text-left px-3 py-2 font-medium uppercase tracking-wide text-[10px]">Layout</th>
                   <th className="text-right px-3 py-2 font-medium uppercase tracking-wide text-[10px]">Pages</th>
@@ -171,18 +184,25 @@ const UserCard = ({
                 </tr>
               </thead>
               <tbody>
-                {summary.rowsRaw.map((r, i) => (
-                  <tr key={r.id} className={`border-b border-border/60 last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
-                    <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">{fmtDateTime(r.used_at)}</td>
-                    <td className="px-3 py-2 max-w-[260px] truncate" title={r.filename}>{r.filename || "—"}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{(r.rent_roll_type || "").replace(/_/g, " ")}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.pages || <span className="text-muted-foreground/50">—</span>}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.rows_extracted || <span className="text-muted-foreground/50">—</span>}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.columns_count || <span className="text-muted-foreground/50">—</span>}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.tenants || <span className="text-muted-foreground/50">—</span>}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{r.downloads || <span className="text-muted-foreground/50">—</span>}</td>
-                  </tr>
-                ))}
+                {summary.rowsRaw.map((r, i) => {
+                  const taken = r.uploaded_at && r.finished_at
+                    ? parseTimestamp(r.finished_at).getTime() - parseTimestamp(r.uploaded_at).getTime()
+                    : r.processing_ms;
+                  return (
+                    <tr key={r.id} className={`border-b border-border/60 last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
+                      <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">{fmtDateTime(r.uploaded_at ?? r.used_at)}</td>
+                      <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{r.finished_at ? fmtDateTime(r.finished_at) : <span className="text-muted-foreground/50">—</span>}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{fmtDuration(taken)}</td>
+                      <td className="px-3 py-2 max-w-[260px] truncate" title={r.filename}>{r.filename || "—"}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{(r.rent_roll_type || "").replace(/_/g, " ")}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.pages || <span className="text-muted-foreground/50">—</span>}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.rows_extracted || <span className="text-muted-foreground/50">—</span>}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.columns_count || <span className="text-muted-foreground/50">—</span>}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.tenants || <span className="text-muted-foreground/50">—</span>}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{r.downloads || <span className="text-muted-foreground/50">—</span>}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

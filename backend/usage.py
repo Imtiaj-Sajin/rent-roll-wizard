@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
@@ -17,6 +19,8 @@ class UsageEvent(BaseModel):
     warnings_count: int = 0
     file_size_bytes: int = 0
     processing_ms: int = 0
+    uploaded_at: datetime | None = None
+    finished_at: datetime | None = None
 
 
 class DownloadEvent(BaseModel):
@@ -32,8 +36,9 @@ def log_usage(event: UsageEvent, user=Depends(authenticate)):
             """
             INSERT INTO rent_roll_wizard_usage
               (user_id, filename, rent_roll_type, pages, rows_extracted, columns_count,
-               tenants, warnings_count, file_size_bytes, processing_ms)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+               tenants, warnings_count, file_size_bytes, processing_ms,
+               uploaded_at, finished_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 user["userId"],
@@ -46,6 +51,8 @@ def log_usage(event: UsageEvent, user=Depends(authenticate)):
                 event.warnings_count,
                 event.file_size_bytes,
                 event.processing_ms,
+                event.uploaded_at,
+                event.finished_at,
             ),
         )
         return {"ok": True, "id": cur.lastrowid}
@@ -89,7 +96,7 @@ def list_usage(user=Depends(authenticate)):
               ru.id, ru.user_id, ru.filename, ru.rent_roll_type,
               ru.pages, ru.rows_extracted, ru.columns_count, ru.tenants,
               ru.downloads, ru.warnings_count, ru.file_size_bytes, ru.processing_ms,
-              ru.used_at,
+              ru.uploaded_at, ru.finished_at, ru.used_at,
               u.username,
               TRIM(CONCAT(COALESCE(e.first_name,''), ' ', COALESCE(e.last_name,''))) AS full_name,
               e.designation
