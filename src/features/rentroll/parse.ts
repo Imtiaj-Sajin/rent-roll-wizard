@@ -1,7 +1,7 @@
 import type { ParseResult, RentRollType } from "./types";
 import { authHeader } from "@/contexts/AuthContext";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://api.rentroll.bulkscraper.cloud";
 
 export interface ParseOutcome {
   result: ParseResult;
